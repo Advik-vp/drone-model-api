@@ -1,0 +1,17 @@
+model Drone {
+  id              String   @id @default(uuid())
+  name            String
+  category        String
+  maxSpeed        Float
+  maxRange        Float
+  weight          Float
+  length          Float
+  width           Float
+  height          Float
+  payloadCapacity Float
+  batteryCapacity Int
+  firmwareVersion String?
+  enabled         Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
