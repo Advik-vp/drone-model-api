@@ -7,6 +7,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "frontend": "node frontend/server.js",
+    "seed": "node scripts/seed.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint src",
