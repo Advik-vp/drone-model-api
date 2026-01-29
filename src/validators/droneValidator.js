@@ -83,7 +83,7 @@ const validateDrone = (data, schema = createDroneSchema) => {
     abortEarly: false,
     stripUnknown: true
   });
-  
+
   if (error) {
     const messages = error.details.map(detail => ({
       field: detail.path.join('.'),
@@ -91,7 +91,7 @@ const validateDrone = (data, schema = createDroneSchema) => {
     }));
     return { valid: false, messages };
   }
-  
+
   return { valid: true, data: value };
 };
 

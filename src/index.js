@@ -50,7 +50,7 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
-    
+
     app.listen(PORT, () => {
       console.log(`\n🚀 Drone API Server running at http://localhost:${PORT}`);
       console.log(`📚 API Documentation at http://localhost:${PORT}/api-docs\n`);
