@@ -1,40 +1,84 @@
 # 🚁 Drone Model API - Complete Reference Guide
 
-> **For GitHub repository overview, see [README_GITHUB.md](./README_GITHUB.md)**
+> **GitHub Repository:** [https://github.com/Advik-vp/drone-model-api](https://github.com/Advik-vp/drone-model-api)
 
 ## Project Overview
 
-A production-ready REST API for managing drone models with complete CRUD operations, validation, pagination, and Swagger documentation.
+A production-ready REST API for managing drone models with complete CRUD operations, validation, pagination, Swagger documentation, and a beautiful web dashboard.
+
+## ⚡ Quick Start
+
+### Using the Quick Start Script (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/Advik-vp/drone-model-api.git
+cd drone-model-api
+
+# Run the interactive start script
+./start.sh
+```
+
+### Manual Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.example .env
+
+# Start MongoDB (using Docker)
+docker run -d -p 27017:27017 --name mongo mongo:6.0
+
+# Start the backend API
+npm start
+
+# In a new terminal, start the frontend
+npm run frontend
+```
+
+**Access the application:**
+- Frontend Dashboard: http://localhost:8080
+- Backend API: http://localhost:3000
+- API Documentation: http://localhost:3000/api-docs
 
 ---
 
 ## 🏗️ Project Structure
 
 ```
-DRONE/
+drone-model-api/
+├── frontend/
+│   ├── index.html              # Web dashboard
+│   ├── server.js               # Frontend server
+│   └── README.md               # Frontend documentation
 ├── src/
 │   ├── config/
-│   │   └── database.js           # MongoDB connection
+│   │   └── database.js         # MongoDB connection
 │   ├── controllers/
-│   │   └── droneController.js    # Business logic for CRUD
+│   │   └── droneController.js  # Business logic for CRUD
 │   ├── middleware/
-│   │   ├── errorHandler.js       # Global error handling
+│   │   ├── errorHandler.js     # Global error handling
 │   │   └── validationMiddleware.js # Request validation
 │   ├── models/
-│   │   └── Drone.js              # MongoDB schema
+│   │   └── Drone.js            # MongoDB schema
 │   ├── routes/
-│   │   └── droneRoutes.js        # API endpoints
+│   │   └── droneRoutes.js      # API endpoints
 │   ├── validators/
-│   │   └── droneValidator.js     # Joi validation schemas
-│   ├── swagger.js                # OpenAPI/Swagger config
-│   └── index.js                  # Application entry point
+│   │   └── droneValidator.js   # Joi validation schemas
+│   ├── swagger.js              # OpenAPI/Swagger config
+│   └── index.js                # Application entry point
 ├── tests/
-│   └── drone.test.js             # Jest test suite
-├── .env.example                  # Environment variables template
+│   └── drone.test.js           # Jest test suite
+├── examples/
+│   └── client.example.js       # API client examples
+├── .env.example                # Environment variables template
 ├── .gitignore
-├── Dockerfile                    # Container image
-├── docker-compose.yml            # Multi-container setup
+├── Dockerfile                  # Container image
+├── docker-compose.yml          # Multi-container setup
 ├── package.json
+├── start.sh                    # Quick start script
 └── README.md
 ```
 

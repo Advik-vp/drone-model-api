@@ -20,11 +20,11 @@ const createDrone = async (req, res, next) => {
 const getAllDrones = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, category, enabled, search } = req.query;
-    
+
     const pageNum = Math.max(1, parseInt(page) || 1);
     const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 10));
     const skip = (pageNum - 1) * limitNum;
-    
+
     // Build filter
     const filter = {};
     if (category) filter.category = category;
@@ -36,14 +36,14 @@ const getAllDrones = async (req, res, next) => {
         { description: { $regex: search, $options: 'i' } }
       ];
     }
-    
+
     const drones = await Drone.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum);
-    
+
     const total = await Drone.countDocuments(filter);
-    
+
     res.status(200).json({
       success: true,
       data: drones,
@@ -63,14 +63,14 @@ const getAllDrones = async (req, res, next) => {
 const getDroneById = async (req, res, next) => {
   try {
     const drone = await Drone.findById(req.params.id);
-    
+
     if (!drone) {
       return res.status(404).json({
         success: false,
         error: 'Drone model not found'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       data: drone
@@ -86,19 +86,19 @@ const updateDrone = async (req, res, next) => {
     const drone = await Drone.findByIdAndUpdate(
       req.params.id,
       req.validatedBody,
-      { 
+      {
         new: true,
         runValidators: true
       }
     );
-    
+
     if (!drone) {
       return res.status(404).json({
         success: false,
         error: 'Drone model not found'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       message: 'Drone model updated successfully',
@@ -113,14 +113,14 @@ const updateDrone = async (req, res, next) => {
 const deleteDrone = async (req, res, next) => {
   try {
     const drone = await Drone.findByIdAndDelete(req.params.id);
-    
+
     if (!drone) {
       return res.status(404).json({
         success: false,
         error: 'Drone model not found'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       message: 'Drone model deleted successfully',
@@ -146,7 +146,7 @@ const getDroneStats = async (req, res, next) => {
       },
       { $sort: { count: -1 } }
     ]);
-    
+
     res.status(200).json({
       success: true,
       data: stats

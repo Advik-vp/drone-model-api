@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drone Model API - Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+      color: #666;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      font-weight: bold;
+    }
+
+    .tab:hover {
+      color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .dimensions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .drone-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .drone-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f9f9f9;
+      transition: all 0.3s;
+    }
+
+    .drone-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .drone-card h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 1.3em;
+    }
+
+    .drone-card p {
+      color: #666;
+      margin: 5px 0;
+      font-size: 0.95em;
+    }
+
+    .drone-card .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #667eea;
+      color: white;
+      border-radius: 20px;
+      font-size: 0.85em;
+      margin-top: 10px;
+    }
+
+    .drone-actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-edit {
+      background: #ffa726;
+      padding: 8px 16px;
+      font-size: 0.9em;
+    }
+
+    .btn-edit:hover {
+      background: #fb8c00;
+    }
+
+    .btn-delete {
+      background: #ef5350;
+      padding: 8px 16px;
+      font-size: 0.9em;
+    }
+
+    .btn-delete:hover {
+      background: #e53935;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+      animation: slideDown 0.3s;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-card h3 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .stat-card p {
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-size: 1.2em;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      align-items: center;
+    }
+
+    .pagination button {
+      padding: 8px 16px;
+      font-size: 0.9em;
+    }
+
+    .pagination span {
+      color: #666;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚁 Drone Model API Dashboard</h1>
+    <p class="subtitle">Manage and explore drone models with ease</p>
+
+    <div id="message" class="message"></div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('list')">View Drones</button>
+      <button class="tab" onclick="switchTab('create')">Create Drone</button>
+      <button class="tab" onclick="switchTab('stats')">Statistics</button>
+    </div>
+
+    <!-- List Drones Tab -->
+    <div id="list-tab" class="tab-content active">
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input type="text" id="searchInput" placeholder="Search drones..." style="flex: 1;">
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+          <option value="quadcopter">Quadcopter</option>
+          <option value="fixed-wing">Fixed-Wing</option>
+          <option value="hexacopter">Hexacopter</option>
+          <option value="octocopter">Octocopter</option>
+        </select>
+        <button onclick="loadDrones()">Search</button>
+      </div>
+      <div id="droneList" class="drone-grid"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Create Drone Tab -->
+    <div id="create-tab" class="tab-content">
+      <form id="createDroneForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Drone Name *</label>
+            <input type="text" id="name" required minlength="2" maxlength="100">
+          </div>
+          <div class="form-group">
+            <label for="category">Category *</label>
+            <select id="category" required>
+              <option value="">Select category</option>
+              <option value="quadcopter">Quadcopter</option>
+              <option value="fixed-wing">Fixed-Wing</option>
+              <option value="hexacopter">Hexacopter</option>
+              <option value="octocopter">Octocopter</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="manufacturer">Manufacturer</label>
+            <input type="text" id="manufacturer" maxlength="100">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="maxSpeed">Max Speed (km/h) *</label>
+            <input type="number" id="maxSpeed" required min="1" max="500">
+          </div>
+          <div class="form-group">
+            <label for="maxRange">Max Range (m) *</label>
+            <input type="number" id="maxRange" required min="100">
+          </div>
+          <div class="form-group">
+            <label for="weight">Weight (g) *</label>
+            <input type="number" id="weight" required min="50" max="50000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Dimensions (cm) *</label>
+          <div class="dimensions">
+            <input type="number" id="dimLength" placeholder="Length" required min="1">
+            <input type="number" id="dimWidth" placeholder="Width" required min="1">
+            <input type="number" id="dimHeight" placeholder="Height" required min="1">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="payloadCapacity">Payload Capacity (g) *</label>
+            <input type="number" id="payloadCapacity" required min="0">
+          </div>
+          <div class="form-group">
+            <label for="batteryCapacity">Battery Capacity (mAh) *</label>
+            <input type="number" id="batteryCapacity" required min="500">
+          </div>
+          <div class="form-group">
+            <label for="firmwareVersion">Firmware Version (X.Y.Z) *</label>
+            <input type="text" id="firmwareVersion" required pattern="\d+\.\d+\.\d+" placeholder="1.0.0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="features">Features (comma-separated)</label>
+          <input type="text" id="features" placeholder="4K Camera, Obstacle Avoidance">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" rows="4" maxlength="1000"></textarea>
+        </div>
+
+        <button type="submit">Create Drone Model</button>
+      </form>
+    </div>
+
+    <!-- Statistics Tab -->
+    <div id="stats-tab" class="tab-content">
+      <div id="statsContent" class="stats-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration - can be overridden by setting window.DRONE_API_URL
+    const API_URL = window.DRONE_API_URL || (window.location.origin.includes('localhost:8080') ? 'http://localhost:3000' : window.location.origin);
+    let currentPage = 1;
+    const itemsPerPage = 9;
+
+    // Utility function to escape HTML to prevent XSS
+    function escapeHtml(unsafe) {
+      if (unsafe === null || unsafe === undefined) return '';
+      return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Switch between tabs
+    function switchTab(tabOrEvent) {
+      let tab;
+      if (typeof tabOrEvent === 'string') {
+        tab = tabOrEvent;
+      } else {
+        tab = tabOrEvent.currentTarget.textContent.toLowerCase().split(' ')[0];
+      }
+
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      const tabButtons = document.querySelectorAll('.tab');
+      tabButtons.forEach((btn, index) => {
+        if (btn.textContent.toLowerCase().includes(tab)) {
+          btn.classList.add('active');
+        }
+      });
+
+      document.getElementById(`${tab}-tab`).classList.add('active');
+
+      if (tab === 'list' || tab === 'view') loadDrones();
+      if (tab === 'stats' || tab === 'statistics') loadStats();
+    }
+
+    // Show message
+    function showMessage(text, type = 'success') {
+      const msgEl = document.getElementById('message');
+      msgEl.textContent = text;
+      msgEl.className = `message ${type}`;
+      msgEl.style.display = 'block';
+      setTimeout(() => {
+        msgEl.style.display = 'none';
+      }, 5000);
+    }
+
+    // Load drones
+    async function loadDrones(page = 1) {
+      currentPage = page;
+      const search = document.getElementById('searchInput')?.value || '';
+      const category = document.getElementById('categoryFilter')?.value || '';
+      
+      const droneList = document.getElementById('droneList');
+      droneList.innerHTML = '<div class="loading">Loading drones...</div>';
+
+      try {
+        const params = new URLSearchParams({
+          page: currentPage,
+          limit: itemsPerPage,
+          ...(search && { search }),
+          ...(category && { category })
+        });
+
+        const response = await fetch(`${API_URL}/drones?${params}`);
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+
+        if (data.data.length === 0) {
+          droneList.innerHTML = '<div class="loading">No drones found</div>';
+          return;
+        }
+
+        droneList.innerHTML = data.data.map(drone => `
+          <div class="drone-card">
+            <h3>${escapeHtml(drone.name)}</h3>
+            <p><strong>Category:</strong> ${escapeHtml(drone.category)}</p>
+            <p><strong>Manufacturer:</strong> ${escapeHtml(drone.manufacturer) || 'N/A'}</p>
+            <p><strong>Max Speed:</strong> ${escapeHtml(drone.maxSpeed)} km/h</p>
+            <p><strong>Max Range:</strong> ${escapeHtml(drone.maxRange)} m</p>
+            <p><strong>Weight:</strong> ${escapeHtml(drone.weight)} g</p>
+            <p><strong>Battery:</strong> ${escapeHtml(drone.batteryCapacity)} mAh</p>
+            <p><strong>Firmware:</strong> ${escapeHtml(drone.firmwareVersion)}</p>
+            ${drone.enabled ? '<span class="badge">Active</span>' : ''}
+            <div class="drone-actions">
+              <button class="btn-delete" onclick="deleteDrone('${escapeHtml(drone._id)}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+
+        // Pagination
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = `
+          <button ${currentPage === 1 ? 'disabled' : ''} onclick="loadDrones(${currentPage - 1})">Previous</button>
+          <span>Page ${data.pagination.currentPage} of ${data.pagination.totalPages}</span>
+          <button ${currentPage === data.pagination.totalPages ? 'disabled' : ''} onclick="loadDrones(${currentPage + 1})">Next</button>
+        `;
+
+      } catch (error) {
+        droneList.innerHTML = '<div class="loading">Error loading drones</div>';
+        showMessage('Error loading drones: ' + error.message, 'error');
+      }
+    }
+
+    // Create drone
+    document.getElementById('createDroneForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        name: document.getElementById('name').value,
+        category: document.getElementById('category').value,
+        manufacturer: document.getElementById('manufacturer').value,
+        maxSpeed: parseInt(document.getElementById('maxSpeed').value),
+        maxRange: parseInt(document.getElementById('maxRange').value),
+        weight: parseInt(document.getElementById('weight').value),
+        dimensions: {
+          length: parseFloat(document.getElementById('dimLength').value),
+          width: parseFloat(document.getElementById('dimWidth').value),
+          height: parseFloat(document.getElementById('dimHeight').value)
+        },
+        payloadCapacity: parseInt(document.getElementById('payloadCapacity').value),
+        batteryCapacity: parseInt(document.getElementById('batteryCapacity').value),
+        firmwareVersion: document.getElementById('firmwareVersion').value,
+        features: document.getElementById('features').value.split(',').map(f => f.trim()).filter(f => f),
+        description: document.getElementById('description').value
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/drones`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to create drone');
+        }
+
+        showMessage('Drone created successfully!', 'success');
+        document.getElementById('createDroneForm').reset();
+        switchTab('list');
+        loadDrones();
+
+      } catch (error) {
+        showMessage('Error creating drone: ' + error.message, 'error');
+      }
+    });
+
+    // Delete drone
+    async function deleteDrone(id) {
+      if (!confirm('Are you sure you want to delete this drone?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/drones/${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+
+        showMessage('Drone deleted successfully!', 'success');
+        loadDrones(currentPage);
+
+      } catch (error) {
+        showMessage('Error deleting drone: ' + error.message, 'error');
+      }
+    }
+
+    // Load statistics
+    async function loadStats() {
+      const statsContent = document.getElementById('statsContent');
+      statsContent.innerHTML = '<div class="loading">Loading statistics...</div>';
+
+      try {
+        const response = await fetch(`${API_URL}/drones/stats/summary`);
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.error);
+        }
+
+        if (data.data.length === 0) {
+          statsContent.innerHTML = '<div class="loading">No statistics available</div>';
+          return;
+        }
+
+        statsContent.innerHTML = data.data.map(stat => `
+          <div class="stat-card">
+            <h3>${escapeHtml(stat.count)}</h3>
+            <p>${escapeHtml(stat._id.toUpperCase())}</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">
+              Avg Speed: ${escapeHtml(stat.avgMaxSpeed?.toFixed(1))} km/h<br>
+              Avg Weight: ${escapeHtml(stat.avgWeight?.toFixed(0))} g
+            </p>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        statsContent.innerHTML = '<div class="loading">Error loading statistics</div>';
+        showMessage('Error loading statistics: ' + error.message, 'error');
+      }
+    }
+
+    // Initial load
+    loadDrones();
+  </script>
+</body>
+</html>

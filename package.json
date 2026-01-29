@@ -6,24 +6,27 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "frontend": "node frontend/server.js",
+    "seed": "node scripts/seed.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "build": "echo 'Build complete'",
     "docker:build": "docker build -t drone-api:latest .",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
   },
   "keywords": ["drone", "api", "rest", "mongodb", "express", "nodejs", "crud"],
-  "author": "Your Name",
+  "author": "Advik-vp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/drone-model-api.git"
+    "url": "https://github.com/Advik-vp/drone-model-api.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/drone-model-api/issues"
+    "url": "https://github.com/Advik-vp/drone-model-api/issues"
   },
-  "homepage": "https://github.com/yourusername/drone-model-api#readme",
+  "homepage": "https://github.com/Advik-vp/drone-model-api#readme",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
