@@ -49,12 +49,23 @@ php -S localhost:8080
 
 ## Configuration
 
-The frontend is configured to connect to the backend API at `http://localhost:3000` by default.
+The frontend automatically detects the API URL:
+- When running on `localhost:8080`, it connects to `http://localhost:3000`
+- In production, it uses the same origin as the frontend
 
-To change this, edit the `API_URL` constant in `index.html`:
+To override the API URL, set a global variable before the page loads:
+
+```html
+<script>
+  window.DRONE_API_URL = 'https://your-api-domain.com';
+</script>
+<script src="..."></script>
+```
+
+Or edit the `API_URL` constant in `index.html`:
 
 ```javascript
-const API_URL = 'http://localhost:3000';  // Change this to your API URL
+const API_URL = window.DRONE_API_URL || 'http://localhost:3000';
 ```
 
 ## Usage

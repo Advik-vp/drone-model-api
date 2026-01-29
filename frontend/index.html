@@ -400,20 +400,45 @@
   </div>
 
   <script>
-    const API_URL = 'http://localhost:3000';
+    // Configuration - can be overridden by setting window.DRONE_API_URL
+    const API_URL = window.DRONE_API_URL || (window.location.origin.includes('localhost:8080') ? 'http://localhost:3000' : window.location.origin);
     let currentPage = 1;
     const itemsPerPage = 9;
 
+    // Utility function to escape HTML to prevent XSS
+    function escapeHtml(unsafe) {
+      if (unsafe === null || unsafe === undefined) return '';
+      return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     // Switch between tabs
-    function switchTab(tab) {
+    function switchTab(tabOrEvent) {
+      let tab;
+      if (typeof tabOrEvent === 'string') {
+        tab = tabOrEvent;
+      } else {
+        tab = tabOrEvent.currentTarget.textContent.toLowerCase().split(' ')[0];
+      }
+
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      
-      event.target.classList.add('active');
+
+      const tabButtons = document.querySelectorAll('.tab');
+      tabButtons.forEach((btn, index) => {
+        if (btn.textContent.toLowerCase().includes(tab)) {
+          btn.classList.add('active');
+        }
+      });
+
       document.getElementById(`${tab}-tab`).classList.add('active');
 
-      if (tab === 'list') loadDrones();
-      if (tab === 'stats') loadStats();
+      if (tab === 'list' || tab === 'view') loadDrones();
+      if (tab === 'stats' || tab === 'statistics') loadStats();
     }
 
     // Show message
@@ -458,17 +483,17 @@
 
         droneList.innerHTML = data.data.map(drone => `
           <div class="drone-card">
-            <h3>${drone.name}</h3>
-            <p><strong>Category:</strong> ${drone.category}</p>
-            <p><strong>Manufacturer:</strong> ${drone.manufacturer || 'N/A'}</p>
-            <p><strong>Max Speed:</strong> ${drone.maxSpeed} km/h</p>
-            <p><strong>Max Range:</strong> ${drone.maxRange} m</p>
-            <p><strong>Weight:</strong> ${drone.weight} g</p>
-            <p><strong>Battery:</strong> ${drone.batteryCapacity} mAh</p>
-            <p><strong>Firmware:</strong> ${drone.firmwareVersion}</p>
+            <h3>${escapeHtml(drone.name)}</h3>
+            <p><strong>Category:</strong> ${escapeHtml(drone.category)}</p>
+            <p><strong>Manufacturer:</strong> ${escapeHtml(drone.manufacturer) || 'N/A'}</p>
+            <p><strong>Max Speed:</strong> ${escapeHtml(drone.maxSpeed)} km/h</p>
+            <p><strong>Max Range:</strong> ${escapeHtml(drone.maxRange)} m</p>
+            <p><strong>Weight:</strong> ${escapeHtml(drone.weight)} g</p>
+            <p><strong>Battery:</strong> ${escapeHtml(drone.batteryCapacity)} mAh</p>
+            <p><strong>Firmware:</strong> ${escapeHtml(drone.firmwareVersion)}</p>
             ${drone.enabled ? '<span class="badge">Active</span>' : ''}
             <div class="drone-actions">
-              <button class="btn-delete" onclick="deleteDrone('${drone._id}')">Delete</button>
+              <button class="btn-delete" onclick="deleteDrone('${escapeHtml(drone._id)}')">Delete</button>
             </div>
           </div>
         `).join('');
@@ -578,11 +603,11 @@
 
         statsContent.innerHTML = data.data.map(stat => `
           <div class="stat-card">
-            <h3>${stat.count}</h3>
-            <p>${stat._id.toUpperCase()}</p>
+            <h3>${escapeHtml(stat.count)}</h3>
+            <p>${escapeHtml(stat._id.toUpperCase())}</p>
             <p style="font-size: 0.9em; margin-top: 10px;">
-              Avg Speed: ${stat.avgMaxSpeed?.toFixed(1)} km/h<br>
-              Avg Weight: ${stat.avgWeight?.toFixed(0)} g
+              Avg Speed: ${escapeHtml(stat.avgMaxSpeed?.toFixed(1))} km/h<br>
+              Avg Weight: ${escapeHtml(stat.avgWeight?.toFixed(0))} g
             </p>
           </div>
         `).join('');
